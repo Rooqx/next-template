@@ -3,8 +3,8 @@ name: Test
 on:
   workflow_dispatch:
     inputs:
-      components:
-        description: 'Codebase map (JSON string: { "src/file.tsx": "content" })'
+      code_url:
+        description: 'URL to the secret Gist containing the codebase map'
         required: true
         type: string
 
@@ -15,13 +15,16 @@ jobs:
       image: ghcr.io/${{ github.repository }}:main
     
     steps:
+      - name: Download Gist Payload
+        run: curl -sL ${{ github.event.inputs.code_url }} > payload.json
+
       - name: Inject codebase components
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const path = require('path');
-            const components = JSON.parse(context.payload.inputs.components);
+            const components = JSON.parse(fs.readFileSync('payload.json', 'utf8'));
             for (const [filepath, content] of Object.entries(components)) {
               const fullPath = path.join(process.cwd(), filepath);
               fs.mkdirSync(path.dirname(fullPath), { recursive: true });
