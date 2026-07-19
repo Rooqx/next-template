@@ -3,8 +3,8 @@ name: Lint
 on:
   workflow_dispatch:
     inputs:
-      component_code:
-        description: 'Code to lint (raw code or JSON map)'
+      code_url:
+        description: 'URL to the secret Gist containing the codebase map'
         required: true
         type: string
 
@@ -15,6 +15,9 @@ jobs:
       image: ghcr.io/${{ github.repository }}:main
       
     steps:
+      - name: Download Gist Payload
+        run: curl -sL ${{ github.event.inputs.code_url }} > payload.json
+
       - name: Inject component code
         uses: actions/github-script@v7
         with:
@@ -22,7 +25,7 @@ jobs:
             const fs = require('fs');
             const path = require('path');
             try {
-              const components = JSON.parse(context.payload.inputs.component_code);
+              const components = JSON.parse(fs.readFileSync('payload.json', 'utf8'));
               for (const [filepath, content] of Object.entries(components)) {
                 const fullPath = path.join(process.cwd(), filepath);
                 fs.mkdirSync(path.dirname(fullPath), { recursive: true });
@@ -30,8 +33,9 @@ jobs:
               }
             } catch(e) {
               // Fallback for raw string
+              const content = fs.readFileSync('payload.json', 'utf8');
               fs.mkdirSync('src', { recursive: true });
-              fs.writeFileSync('src/index.tsx', context.payload.inputs.component_code);
+              fs.writeFileSync('src/index.tsx', content);
             }
 
       - name: Run ESLint
