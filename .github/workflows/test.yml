@@ -1,4 +1,4 @@
-name: Test
+name: CI Pipeline
 
 on:
   workflow_dispatch:
@@ -12,6 +12,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container:
+      # This lowercase repo name fixes the Docker bug!
       image: ghcr.io/rooqx/next-template:main
     
     steps:
@@ -30,6 +31,12 @@ jobs:
               fs.mkdirSync(path.dirname(fullPath), { recursive: true });
               fs.writeFileSync(fullPath, content);
             }
+            
+      - name: Run Lint
+        run: pnpm run lint
+        
+      - name: Type Check
+        run: npx tsc --noEmit
             
       - name: Run Build
         run: pnpm run build
