@@ -1,12 +1,13 @@
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable pnpm
+# RUN corepack enable pnpm
+RUN npm install -g pnpm@9
 
 FROM base AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --fetch-retries 5 --fetch-timeout 600000
 
 FROM base AS runner
 WORKDIR /app
