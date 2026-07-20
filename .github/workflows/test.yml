@@ -12,7 +12,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/${{ github.repository }}:main
+      image: ghcr.io/rooqx/next-template:main
     
     steps:
       - name: Download Gist Payload
