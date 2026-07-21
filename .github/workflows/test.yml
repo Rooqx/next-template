@@ -11,26 +11,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    # Removed the missing Docker container setup!
+    container:
+      # This pulls the image you just pushed!
+      image: ghcr.io/rooqx/next-template:main
     
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
-
       - name: Download Gist Payload
         run: curl -sL ${{ github.event.inputs.code_url }} > payload.json
 
@@ -58,10 +43,3 @@ jobs:
             
       - name: Run Tests
         run: pnpm test
-        
-      - name: Upload Artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tested-components
-          path: src/
