@@ -22,11 +22,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
+      - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          # FIXED: Manually lowercased to prevent the Docker uppercase crash
+          images: ghcr.io/rooqx/next-template
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
